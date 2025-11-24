@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "R13jXFj5itG89Q9vWtdoL2GquLk55oPZtIyr9PK+ZCc=",
+  "Source": "PrimusSaaS.TestApp",
+  "BasePath": "_content/PrimusSaaS.TestApp",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
