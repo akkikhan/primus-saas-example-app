@@ -39,13 +39,14 @@ interface LogStats {
 @Component({
     selector: 'app-logs',
     templateUrl: './logs.component.html',
-    styleUrls: ['./logs.component.css']
+    styleUrls: ['./logs.component.css'],
+    standalone: false
 })
 export class LogsComponent implements OnInit, OnDestroy {
     private apiUrl = 'http://localhost:5001/api/logs';
 
     logs: LogEntry[] = [];
-    stats: LogStats | null = null;
+    stats: LogStats = this.createEmptyStats();
     categories: string[] = [];
 
     // Pagination
@@ -126,10 +127,11 @@ export class LogsComponent implements OnInit, OnDestroy {
     loadStats(): void {
         this.http.get<LogStats>(`${this.apiUrl}/stats`).subscribe({
             next: (stats) => {
-                this.stats = stats;
+                this.stats = stats ?? this.createEmptyStats();
             },
             error: (error) => {
                 console.error('Error loading stats:', error);
+                this.stats = this.createEmptyStats();
             }
         });
     }
@@ -201,6 +203,15 @@ export class LogsComponent implements OnInit, OnDestroy {
         if (this.refreshSubscription) {
             this.refreshSubscription.unsubscribe();
         }
+    }
+
+    private createEmptyStats(): LogStats {
+        return {
+            totalLogs: 0,
+            byLevel: {},
+            byCategory: {},
+            recentErrors: []
+        };
     }
 
     private buildParams(): HttpParams {

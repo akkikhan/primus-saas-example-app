@@ -162,8 +162,7 @@
                             <td class="category-cell">{{ log.context?.category || 'N/A' }}</td>
                             <td class="message-cell">{{ log.message }}</td>
                             <td class="request-id-cell">
-                                <code
-                                    *ngIf="log.context?.requestId">{{ log.context.requestId.substring(4, 12) }}...</code>
+                                <code *ngIf="log.context?.requestId as requestId">{{ requestId.substring(4, 12) }}...</code>
                                 <span *ngIf="!log.context?.requestId">-</span>
                             </td>
                         </tr>

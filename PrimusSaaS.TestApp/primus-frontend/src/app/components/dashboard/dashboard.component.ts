@@ -70,18 +70,36 @@ export class DashboardComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
+        console.log('=== DASHBOARD: ngOnInit ===');
         this.user = this.authService.currentUserValue;
+        console.log('Current user from auth service:', this.user);
 
         // If we already have user data, show the dashboard immediately
         if (this.user) {
             this.loading = false;
+            console.log('User exists, loading set to false immediately');
         }
+
+        // Safety timeout - ensure loading never stays true forever
+        setTimeout(() => {
+            if (this.loading) {
+                console.warn('=== DASHBOARD: Timeout - forcing loading to false ===');
+                this.loading = false;
+                if (!this.user) {
+                    this.user = this.authService.currentUserValue;
+                }
+            }
+        }, 5000);
 
         // Try to load additional details, but don't block the UI
         this.loadUserDetails();
     }
 
     loadUserDetails(): void {
+        console.log('=== DASHBOARD: Loading user details ===');
+        console.log('Current user:', this.user);
+        console.log('Has token:', !!this.authService.token);
+        
         // Don't show loading spinner if we already have basic user info
         if (!this.user) {
             this.loading = true;
@@ -89,12 +107,24 @@ export class DashboardComponent implements OnInit {
 
         this.authService.getUserDetails().subscribe({
             next: (details) => {
+                console.log('=== DASHBOARD: User details received ===', details);
                 this.userDetails = details;
-                this.user = details; // Update user with full details
+                
+                // Map the response correctly - use the actual property names
+                this.user = {
+                    userId: details.userId || details.email,
+                    email: details.email || 'unknown@example.com',
+                    name: details.name || 'Unknown User',
+                    roles: details.roles || [],
+                    tenantId: details.tenantContext?.tenantId || details.tenantId || 'default'
+                };
+                
+                console.log('=== DASHBOARD: User object updated ===', this.user);
                 this.loading = false;
+                console.log('=== DASHBOARD: Loading set to false ===');
             },
             error: (error) => {
-                console.error('Error loading user details:', error);
+                console.error('=== DASHBOARD: Error loading user details ===', error);
                 this.error = 'Failed to load user details';
                 this.loading = false;
 
@@ -102,6 +132,8 @@ export class DashboardComponent implements OnInit {
                 if (!this.user) {
                     this.user = this.authService.currentUserValue;
                 }
+                
+                console.log('=== DASHBOARD: Loading set to false (error case) ===');
             }
         });
     }
