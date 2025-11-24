@@ -24,7 +24,11 @@ public class TokenController : ControllerBase
     [HttpPost("generate")]
     public IActionResult GenerateToken([FromBody] TokenRequest request)
     {
-        _logger.LogInformation("Generating token for user {UserId}", request.UserId);
+        _logger.LogInformation("=== TOKEN GENERATION ENDPOINT CALLED ===");
+        _logger.LogInformation("Request: UserId={UserId}, Email={Email}, Name={Name}, Roles={Roles}, TenantId={TenantId}", 
+            request.UserId, request.Email, request.Name, 
+            request.Roles != null ? string.Join(",", request.Roles) : "None", 
+            request.TenantId ?? "None");
 
         try
         {
@@ -78,6 +82,7 @@ public class TokenController : ControllerBase
             var tokenString = tokenHandler.WriteToken(token);
 
             _logger.LogInformation("Token generated successfully for user {UserId}", request.UserId);
+            _logger.LogDebug("Generated token (first 50 chars): {Token}", tokenString.Substring(0, Math.Min(50, tokenString.Length)));
 
             return Ok(new
             {

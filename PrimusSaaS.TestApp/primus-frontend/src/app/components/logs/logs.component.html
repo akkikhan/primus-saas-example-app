@@ -1,0 +1,257 @@
+<div class="logs-container">
+    <!-- Header -->
+    <div class="logs-header">
+        <h1>
+            <span class="icon">📊</span>
+            Application Logs
+        </h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary" (click)="toggleAutoRefresh()" [class.active]="autoRefresh">
+                <span class="icon">{{ autoRefresh ? '⏸️' : '▶️' }}</span>
+                {{ autoRefresh ? 'Pause' : 'Resume' }} Auto-Refresh
+            </button>
+            <button class="btn btn-secondary" (click)="loadLogs()">
+                <span class="icon">🔄</span>
+                Refresh
+            </button>
+            <button class="btn btn-primary" (click)="exportLogs()">
+                <span class="icon">💾</span>
+                Export
+            </button>
+            <button class="btn btn-danger" (click)="clearLogs()">
+                <span class="icon">🗑️</span>
+                Clear Logs
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid" *ngIf="stats">
+        <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-content">
+                <div class="stat-label">Total Logs</div>
+                <div class="stat-value">{{ stats.totalLogs }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card level-debug" *ngIf="stats.byLevel['DEBUG']">
+            <div class="stat-icon">🔍</div>
+            <div class="stat-content">
+                <div class="stat-label">Debug</div>
+                <div class="stat-value">{{ stats.byLevel['DEBUG'] || 0 }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card level-info" *ngIf="stats.byLevel['INFO']">
+            <div class="stat-icon">ℹ️</div>
+            <div class="stat-content">
+                <div class="stat-label">Info</div>
+                <div class="stat-value">{{ stats.byLevel['INFO'] || 0 }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card level-warning" *ngIf="stats.byLevel['WARNING']">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-content">
+                <div class="stat-label">Warnings</div>
+                <div class="stat-value">{{ stats.byLevel['WARNING'] || 0 }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card level-error" *ngIf="stats.byLevel['ERROR']">
+            <div class="stat-icon">❌</div>
+            <div class="stat-content">
+                <div class="stat-label">Errors</div>
+                <div class="stat-value">{{ stats.byLevel['ERROR'] || 0 }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card level-critical" *ngIf="stats.byLevel['CRITICAL']">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-content">
+                <div class="stat-label">Critical</div>
+                <div class="stat-value">{{ stats.byLevel['CRITICAL'] || 0 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+        <h2>Filters</h2>
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label for="level-filter">Log Level</label>
+                <select id="level-filter" [(ngModel)]="selectedLevel" (change)="applyFilters()">
+                    <option value="">All Levels</option>
+                    <option value="DEBUG">Debug</option>
+                    <option value="INFO">Info</option>
+                    <option value="WARNING">Warning</option>
+                    <option value="ERROR">Error</option>
+                    <option value="CRITICAL">Critical</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="category-filter">Category</label>
+                <select id="category-filter" [(ngModel)]="selectedCategory" (change)="applyFilters()">
+                    <option value="">All Categories</option>
+                    <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="search-filter">Search</label>
+                <input type="text" id="search-filter" [(ngModel)]="searchText" (keyup.enter)="applyFilters()"
+                    placeholder="Search in messages..." />
+            </div>
+
+            <div class="filter-group">
+                <label for="start-date">Start Date</label>
+                <input type="datetime-local" id="start-date" [(ngModel)]="startDate" (change)="applyFilters()" />
+            </div>
+
+            <div class="filter-group">
+                <label for="end-date">End Date</label>
+                <input type="datetime-local" id="end-date" [(ngModel)]="endDate" (change)="applyFilters()" />
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn btn-primary" (click)="applyFilters()">Apply Filters</button>
+                <button class="btn btn-secondary" (click)="clearFilters()">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-indicator" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Loading logs...</p>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="logs-table-container" *ngIf="!loading">
+        <div class="table-info">
+            <p>Showing {{ logs.length }} of {{ totalLogs }} logs</p>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="logs-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"></th>
+                        <th style="width: 80px;">Level</th>
+                        <th style="width: 180px;">Timestamp</th>
+                        <th style="width: 250px;">Category</th>
+                        <th>Message</th>
+                        <th style="width: 120px;">Request ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let log of logs; let i = index">
+                        <tr class="log-row" [class]="getLevelClass(log.level)" (click)="toggleLogDetails(i)">
+                            <td class="expand-cell">
+                                <span class="expand-icon">{{ expandedLogIndex === i ? '▼' : '▶' }}</span>
+                            </td>
+                            <td class="level-cell">
+                                <span class="level-badge" [class]="getLevelClass(log.level)">
+                                    {{ getLevelIcon(log.level) }} {{ log.level }}
+                                </span>
+                            </td>
+                            <td class="timestamp-cell">{{ formatTimestamp(log.timestamp) }}</td>
+                            <td class="category-cell">{{ log.context?.category || 'N/A' }}</td>
+                            <td class="message-cell">{{ log.message }}</td>
+                            <td class="request-id-cell">
+                                <code
+                                    *ngIf="log.context?.requestId">{{ log.context.requestId.substring(4, 12) }}...</code>
+                                <span *ngIf="!log.context?.requestId">-</span>
+                            </td>
+                        </tr>
+                        <tr class="log-details-row" *ngIf="expandedLogIndex === i">
+                            <td colspan="6">
+                                <div class="log-details">
+                                    <div class="details-section">
+                                        <h4>Message</h4>
+                                        <p>{{ log.message }}</p>
+                                    </div>
+
+                                    <div class="details-section" *ngIf="log.context">
+                                        <h4>Context</h4>
+                                        <div class="context-grid">
+                                            <div class="context-item" *ngIf="log.context.applicationId">
+                                                <strong>Application ID:</strong> {{ log.context.applicationId }}
+                                            </div>
+                                            <div class="context-item" *ngIf="log.context.environment">
+                                                <strong>Environment:</strong> {{ log.context.environment }}
+                                            </div>
+                                            <div class="context-item" *ngIf="log.context.eventId">
+                                                <strong>Event ID:</strong> {{ log.context.eventId }}
+                                            </div>
+                                            <div class="context-item" *ngIf="log.context.eventName">
+                                                <strong>Event Name:</strong> {{ log.context.eventName }}
+                                            </div>
+                                            <div class="context-item" *ngIf="log.context.requestId">
+                                                <strong>Request ID:</strong> <code>{{ log.context.requestId }}</code>
+                                            </div>
+                                            <div class="context-item" *ngIf="log.context.method">
+                                                <strong>HTTP Method:</strong> {{ log.context.method }}
+                                            </div>
+                                            <div class="context-item" *ngIf="log.context.path">
+                                                <strong>Path:</strong> {{ log.context.path }}
+                                            </div>
+                                            <div class="context-item" *ngIf="log.context.statusCode">
+                                                <strong>Status Code:</strong> {{ log.context.statusCode }}
+                                            </div>
+                                            <div class="context-item" *ngIf="log.context.duration !== undefined">
+                                                <strong>Duration:</strong> {{ log.context.duration }}ms
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="details-section">
+                                        <h4>Raw JSON</h4>
+                                        <pre class="json-view">{{ log | json }}</pre>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-container>
+
+                    <tr *ngIf="logs.length === 0">
+                        <td colspan="6" class="no-logs">
+                            <div class="empty-state">
+                                <span class="icon">📭</span>
+                                <p>No logs found matching your filters</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+            <button class="btn btn-secondary" (click)="changePage(1)" [disabled]="currentPage === 1">
+                First
+            </button>
+            <button class="btn btn-secondary" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+                Previous
+            </button>
+
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-page" [class.active]="page === currentPage"
+                (click)="changePage(page)">
+                {{ page }}
+            </button>
+
+            <button class="btn btn-secondary" (click)="changePage(currentPage + 1)"
+                [disabled]="currentPage === totalPages">
+                Next
+            </button>
+            <button class="btn btn-secondary" (click)="changePage(totalPages)" [disabled]="currentPage === totalPages">
+                Last
+            </button>
+
+            <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+        </div>
+    </div>
+</div>

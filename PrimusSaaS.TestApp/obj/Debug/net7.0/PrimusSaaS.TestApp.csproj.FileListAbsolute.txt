@@ -1,5 +1,11 @@
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\appsettings.Development.json
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\appsettings.json
+C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\primus-frontend\angular.json
+C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\primus-frontend\package-lock.json
+C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\primus-frontend\package.json
+C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\primus-frontend\tsconfig.app.json
+C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\primus-frontend\tsconfig.json
+C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\primus-frontend\tsconfig.spec.json
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\PrimusSaaS.TestApp.exe
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\PrimusSaaS.TestApp.deps.json
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\PrimusSaaS.TestApp.runtimeconfig.json
@@ -67,3 +73,5 @@ C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\obj\Debug\net7.0\refint\Pri
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\obj\Debug\net7.0\PrimusSaaS.TestApp.pdb
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\obj\Debug\net7.0\PrimusSaaS.TestApp.genruntimeconfig.cache
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\obj\Debug\net7.0\ref\PrimusSaaS.TestApp.dll
+C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\app-manifest.json
+C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\app-update.json

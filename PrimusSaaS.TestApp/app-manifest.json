@@ -1,0 +1,115 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications/$entity",
+  "addIns": [],
+  "api": {
+    "acceptMappedClaims": null,
+    "knownClientApplications": [],
+    "oauth2PermissionScopes": [
+      {
+        "adminConsentDescription": "Allow the application to access the API on behalf of the signed-in user",
+        "adminConsentDisplayName": "Access API",
+        "id": "8d95cb29-37d0-4ce5-b94c-9da3c0f14eb7",
+        "isEnabled": true,
+        "type": "User",
+        "userConsentDescription": "Allow the application to access the API on your behalf",
+        "userConsentDisplayName": "Access API",
+        "value": "access_as_user"
+      }
+    ],
+    "preAuthorizedApplications": [],
+    "requestedAccessTokenVersion": null
+  },
+  "appId": "32979413-dcc7-4efa-b8b2-47a7208be405",
+  "appRoles": [],
+  "applicationTemplateId": null,
+  "certification": null,
+  "createdDateTime": "2025-11-23T04:19:34Z",
+  "defaultRedirectUri": null,
+  "deletedDateTime": null,
+  "description": null,
+  "disabledByMicrosoftStatus": null,
+  "displayName": "azure-ad-app-backend",
+  "groupMembershipClaims": null,
+  "id": "090a4609-fad1-4bad-b417-348fbf1b8d99",
+  "identifierUris": [
+    "api://32979413-dcc7-4efa-b8b2-47a7208be405"
+  ],
+  "info": {
+    "logoUrl": null,
+    "marketingUrl": null,
+    "privacyStatementUrl": null,
+    "supportUrl": null,
+    "termsOfServiceUrl": null
+  },
+  "isDeviceOnlyAuthSupported": null,
+  "isFallbackPublicClient": null,
+  "keyCredentials": [],
+  "nativeAuthenticationApisEnabled": null,
+  "notes": null,
+  "optionalClaims": null,
+  "parentalControlSettings": {
+    "countriesBlockedForMinors": [],
+    "legalAgeGroupRule": "Allow"
+  },
+  "passwordCredentials": [
+    {
+      "customKeyIdentifier": null,
+      "displayName": "dev-secret",
+      "endDateTime": "2027-11-23T04:19:43Z",
+      "hint": "R31",
+      "keyId": "28980fa2-b423-4294-895a-1206629a47d1",
+      "secretText": null,
+      "startDateTime": "2025-11-23T04:19:43Z"
+    }
+  ],
+  "publicClient": {
+    "redirectUris": []
+  },
+  "publisherDomain": "akkhan2026outlook.onmicrosoft.com",
+  "requestSignatureVerification": null,
+  "requiredResourceAccess": [
+    {
+      "resourceAccess": [
+        {
+          "id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+          "type": "Scope"
+        }
+      ],
+      "resourceAppId": "00000003-0000-0000-c000-000000000000"
+    }
+  ],
+  "samlMetadataUrl": null,
+  "serviceManagementReference": null,
+  "servicePrincipalLockConfiguration": null,
+  "signInAudience": "AzureADMyOrg",
+  "spa": {
+    "redirectUris": [
+      "http://localhost:4200"
+    ]
+  },
+  "tags": [],
+  "tokenEncryptionKeyId": null,
+  "uniqueName": null,
+  "verifiedPublisher": {
+    "addedDateTime": null,
+    "displayName": null,
+    "verifiedPublisherId": null
+  },
+  "web": {
+    "homePageUrl": null,
+    "implicitGrantSettings": {
+      "enableAccessTokenIssuance": true,
+      "enableIdTokenIssuance": true
+    },
+    "logoutUrl": null,
+    "redirectUriSettings": [
+      {
+        "index": null,
+        "uri": "http://localhost:5265/signin-oidc"
+      }
+    ],
+    "redirectUris": [
+      "http://localhost:5265/signin-oidc"
+    ]
+  }
+}

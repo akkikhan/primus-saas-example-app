@@ -1,49 +1,13 @@
 using Microsoft.Extensions.Logging;
 using PrimusSaaS.Identity.Validator;
-using PrimusSaaS.Logging.Core;
-using PrimusSaaS.Logging.Extensions;
-using PrimusLogLevel = PrimusSaaS.Logging.Core.LogLevel;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure PrimusSaaS.Logging v1.1.1 - Direct configuration with LoggerOptions
+// Configure logging - Use standard console logging for now to avoid serialization issues
 builder.Logging.ClearProviders();
-builder.Logging.AddPrimus(options =>
-{
-    options.ApplicationId = "PRIMUS-TEST-APP";
-    options.Environment = "development";
-    options.MinLevel = PrimusLogLevel.Debug;
-    
-    // Configure multiple output targets
-    options.Targets = new List<TargetConfig>
-    {
-        // Console target with pretty printing
-        new TargetConfig
-        {
-            Type = "console",
-            Pretty = true
-        },
-        // File target with async writes and rotation
-        new TargetConfig
-        {
-            Type = "file",
-            Path = "logs/app.log",
-            Async = true,
-            MaxFileSize = 10 * 1024 * 1024,  // 10MB
-            MaxRetainedFiles = 5,
-            CompressRotatedFiles = true
-        }
-    };
-    
-    // Enable PII masking
-    options.Pii = new PiiOptions
-    {
-        MaskEmails = true,
-        MaskCreditCards = true,
-        MaskSSN = true,
-        CustomSensitiveKeys = new List<string> { "password", "apiKey", "secret", "token" }
-    };
-});
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
 
 // Configure PrimusSaaS.Identity.Validator v1.2.2 - Multi-issuer JWT/OIDC validation
 builder.Services.AddPrimusIdentity(options =>
@@ -57,6 +21,18 @@ builder.Services.AddPrimusIdentity(options =>
             Issuer = "https://localhost:5001",
             Secret = "ThisIsAVerySecureSecretKeyForTestingPurposes123456!",
             Audiences = new List<string> { "api://primus-test-app" }
+        },
+        new IssuerConfig
+        {
+            Name = "AzureAD",
+            Type = IssuerType.Oidc,
+            Authority = "https://login.microsoftonline.com/cbd15a9b-cd52-4ccc-916a-00e2edb13043",
+            Issuer = "https://login.microsoftonline.com/cbd15a9b-cd52-4ccc-916a-00e2edb13043/v2.0",
+            Audiences = new List<string> 
+            { 
+                "api://32979413-dcc7-4efa-b8b2-47a7208be405",
+                "32979413-dcc7-4efa-b8b2-47a7208be405" 
+            }
         }
     };
 
@@ -65,10 +41,20 @@ builder.Services.AddPrimusIdentity(options =>
     options.ClockSkew = TimeSpan.FromMinutes(5);
 
     // Optional: map claims to tenant context
-    options.TenantResolver = claims => new TenantContext
+    options.TenantResolver = claims => 
     {
-        TenantId = claims.Get("tid") ?? claims.Get("tenantId") ?? "default",
-        Roles = claims.Get<List<string>>("roles") ?? new List<string>()
+        try 
+        {
+            return new TenantContext
+            {
+                TenantId = claims?.Get("tid") ?? claims?.Get("tenantId") ?? "default",
+                Roles = claims?.Get<List<string>>("roles") ?? new List<string>()
+            };
+        }
+        catch
+        {
+            return new TenantContext { TenantId = "default", Roles = new List<string>() };
+        }
     };
 });
 
@@ -76,6 +62,19 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add CORS configuration
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()
+              .SetIsOriginAllowedToAllowWildcardSubdomains();
+    });
+});
 
 var app = builder.Build();
 
@@ -88,11 +87,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Use CORS
+app.UseCors();
+
 // Use PrimusSaaS.Identity.Validator authentication
 app.UseAuthentication();
-
-// Use PrimusSaaS.Logging middleware for HTTP context enrichment
-PrimusSaaS.Logging.Extensions.LoggingExtensions.UsePrimusLogging(app);
 
 app.UseAuthorization();
 

@@ -78,32 +78,88 @@ public class SecureController : ControllerBase
     [Authorize]
     public IActionResult GetUserDetails()
     {
-        var primusUser = HttpContext.GetPrimusUser();
-
-        if (primusUser == null)
+        _logger.LogInformation("=== USER DETAILS ENDPOINT CALLED ===");
+        _logger.LogInformation("Authorization Header: {AuthHeader}", Request.Headers["Authorization"].FirstOrDefault() ?? "None");
+        _logger.LogInformation("User Identity: {IsAuthenticated}, {Name}", User?.Identity?.IsAuthenticated, User?.Identity?.Name);
+        
+        try
         {
-            return Unauthorized(new { error = "No user context found" });
-        }
+            var primusUser = HttpContext.GetPrimusUser();
 
-        _logger.LogInformation("User details requested for {UserId}", primusUser.UserId);
-
-        // Log all claims for testing
-        _logger.LogDebug("User claims: {@Claims}", primusUser.AdditionalClaims);
-
-        return Ok(new
-        {
-            userId = primusUser.UserId,
-            email = primusUser.Email,
-            name = primusUser.Name,
-            roles = primusUser.Roles,
-            tenantContext = new
+            if (primusUser == null)
             {
-                tenantId = primusUser.AdditionalClaims.ContainsKey("tid") 
-                    ? primusUser.AdditionalClaims["tid"] 
-                    : "N/A"
-            },
-            allClaims = primusUser.AdditionalClaims,
-            authenticatedAt = DateTime.UtcNow
-        });
+                _logger.LogWarning("No Primus user context found in request");
+                return Unauthorized(new { error = "No user context found" });
+            }
+
+            _logger.LogInformation("User details requested for {UserId}", primusUser.UserId ?? "Unknown");
+
+            // Ensure collections are not null
+            var roles = primusUser.Roles ?? new List<string>();
+            var claims = primusUser.AdditionalClaims ?? new Dictionary<string, string>();
+
+            // Log all claims for testing
+            _logger.LogInformation("User claims count: {Count}", claims.Count);
+            
+            // Extract email from claims (Azure AD uses preferred_username)
+            var email = primusUser.Email;
+            if (string.IsNullOrEmpty(email))
+            {
+                email = claims.TryGetValue("preferred_username", out var preferredUsername) 
+                    ? preferredUsername 
+                    : claims.TryGetValue("email", out var emailClaim) 
+                        ? emailClaim 
+                        : "unknown@example.com";
+            }
+
+            // Extract name from claims
+            var name = primusUser.Name;
+            if (string.IsNullOrEmpty(name))
+            {
+                name = claims.TryGetValue("name", out var nameClaim) 
+                    ? nameClaim 
+                    : email.Split('@')[0];
+            }
+
+            // Extract tenant ID from claims
+            var tenantId = "N/A";
+            if (claims.ContainsKey("tid"))
+            {
+                tenantId = claims["tid"];
+            }
+            else if (claims.ContainsKey("http://schemas.microsoft.com/identity/claims/tenantid"))
+            {
+                tenantId = claims["http://schemas.microsoft.com/identity/claims/tenantid"];
+            }
+            else if (claims.ContainsKey("tenantId"))
+            {
+                tenantId = claims["tenantId"];
+            }
+
+            var response = new
+            {
+                userId = primusUser.UserId ?? "unknown",
+                email = email,
+                name = name,
+                roles = roles,
+                tenantContext = new
+                {
+                    tenantId = tenantId
+                },
+                allClaims = claims,
+                authenticatedAt = DateTime.UtcNow
+            };
+
+            _logger.LogInformation("=== RETURNING USER DETAILS RESPONSE ===");
+            _logger.LogInformation("UserId: {UserId}, Email: {Email}, Name: {Name}, TenantId: {TenantId}", 
+                response.userId, response.email, response.name, response.tenantContext.tenantId);
+            
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving user details");
+            return StatusCode(500, new { error = "Internal Server Error", message = ex.Message });
+        }
     }
 }
