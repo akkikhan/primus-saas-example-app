@@ -3,13 +3,13 @@ using PrimusSaaS.Identity.Validator;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure logging - Use standard console logging for now to avoid serialization issues
+// Use Microsoft logging for now (PrimusSaaS.Logging v1.2.1 has different API - testing separately)
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
-builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
+builder.Logging.SetMinimumLevel(LogLevel.Information);
 
-// Configure PrimusSaaS.Identity.Validator v1.2.2 - Multi-issuer JWT/OIDC validation
+// Configure PrimusSaaS.Identity.Validator v1.3.0 - NEW API
 builder.Services.AddPrimusIdentity(options =>
 {
     options.Issuers = new()
@@ -17,15 +17,15 @@ builder.Services.AddPrimusIdentity(options =>
         new IssuerConfig
         {
             Name = "LocalAuth",
-            Type = IssuerType.Jwt,
-            Issuer = "https://localhost:5001",
+            Type = IssuerType.Jwt,  // JWT type stays the same
+            Issuer = "https://localhost:5001",  // Match actual port
             Secret = "ThisIsAVerySecureSecretKeyForTestingPurposes123456!",
             Audiences = new List<string> { "api://primus-test-app" }
         },
         new IssuerConfig
         {
             Name = "AzureAD",
-            Type = IssuerType.Oidc,
+            Type = IssuerType.AzureAD,  // CHANGED: was Oidc, now AzureAD
             Authority = "https://login.microsoftonline.com/cbd15a9b-cd52-4ccc-916a-00e2edb13043",
             Issuer = "https://login.microsoftonline.com/cbd15a9b-cd52-4ccc-916a-00e2edb13043/v2.0",
             Audiences = new List<string> 
@@ -39,23 +39,29 @@ builder.Services.AddPrimusIdentity(options =>
     options.ValidateLifetime = true;
     options.RequireHttpsMetadata = false; // For local testing
     options.ClockSkew = TimeSpan.FromMinutes(5);
-
-    // Optional: map claims to tenant context
-    options.TenantResolver = claims => 
-    {
-        try 
-        {
-            return new TenantContext
-            {
-                TenantId = claims?.Get("tid") ?? claims?.Get("tenantId") ?? "default",
-                Roles = claims?.Get<List<string>>("roles") ?? new List<string>()
-            };
-        }
-        catch
-        {
-            return new TenantContext { TenantId = "default", Roles = new List<string>() };
-        }
-    };
+    options.JwksCacheTtl = TimeSpan.FromHours(24);
+    
+    // Optional: Enable rate limiting
+    // options.RateLimiting = new RateLimitOptions
+    // {
+    //     Enable = true,
+    //     MaxFailuresPerWindow = 5,
+    //     MaxGlobalFailuresPerWindow = 100,
+    //     Window = TimeSpan.FromMinutes(5)
+    // };
+    
+    // Optional: Enable token refresh (dev mode)
+    // options.TokenRefresh = new TokenRefreshOptions
+    // {
+    //     Enable = true,
+    //     UseInMemoryStore = true,  // DEV ONLY!
+    //     AccessTokenTtl = TimeSpan.FromMinutes(15),
+    //     RefreshTokenTtl = TimeSpan.FromDays(7)
+    // };
+    
+    // NOTE: TenantResolver removed in v1.3.0
+    // Claims mapping is now left to the developer
+    // Implement in controllers/middleware as needed
 });
 
 builder.Services.AddAuthorization();
@@ -96,6 +102,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map Primus Identity diagnostics endpoint (NEW in v1.3.0)
+app.MapPrimusIdentityDiagnostics(); // GET /primus/diagnostics
 
 app.Run();
 

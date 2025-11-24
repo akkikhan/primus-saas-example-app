@@ -22,10 +22,7 @@ C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.AspNetCore.OpenApi.dll
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.Bcl.TimeProvider.dll
-C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.Extensions.Logging.ApplicationInsights.dll
-C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.Extensions.Options.dll
-C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.Extensions.Primitives.dll
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.IdentityModel.Abstractions.dll
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.IdentityModel.JsonWebTokens.dll
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\Microsoft.IdentityModel.Logging.dll
@@ -75,3 +72,4 @@ C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\obj\Debug\net7.0\PrimusSaaS
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\obj\Debug\net7.0\ref\PrimusSaaS.TestApp.dll
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\app-manifest.json
 C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\app-update.json
+C:\Users\aakib\PrimusSaaS.TestApp\PrimusSaaS.TestApp\bin\Debug\net7.0\primus-frontend\dist\primus-frontend\prerendered-routes.json
